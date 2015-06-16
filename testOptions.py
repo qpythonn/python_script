@@ -26,9 +26,10 @@ if __name__ == "__main__":
 
 print sys.argv
 
-print "sys.argv[2] is " ,sys.argv[2] 
+
 
 if (len(sys.argv) > 1): 
     if not (sys.argv[1] == ""):
-        print "arg is ", sys.argv[1]
+        print "sys.argv[1] is ", sys.argv[1]
+        print "sys.argv[2] is " ,sys.argv[2] 
 
