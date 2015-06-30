@@ -1,9 +1,9 @@
 # This script will count the number of events per dataset for a list of datasets.
-# There is two distinct use cases
-# i) You already have a list of datasets for which you want to know the number of events of
-# Syntax example: "count_events.py - i my_file.txt"  where my_file.txt is a file without any empty lines
+# There is two distinct use cases:
+# i) You already have a list of datasets for which you want to know the number of events of.
+# Syntax example: "count_events.py - i my_file.txt"  where my_file.txt is a file without any empty lines.
 # ii) You do not have a list of datasets. In that case, a list of datasets that matches a das querry will be created by the script.
-#Syntax example: "count_events.py -q /*TTbar_13/*7_4_3-*/GEN-SIM-RECO"
+# Syntax example: "count_events.py -q /*TTbar_13/*7_4_3-*/GEN-SIM-RECO"
 
 import sys, getopt
 import os
