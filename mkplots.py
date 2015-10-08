@@ -62,6 +62,7 @@ def draw2eff(dhe, en, s, si, flavor):
     hFs.SetMaximum(maxi)
     hFs.SetMinimum(mini)
 
+
     hFs.SetTitle("")
     hFs.GetXaxis().SetTitle('jet p_{T}')
     hFs.GetXaxis().SetTitleSize(0.055)
@@ -79,7 +80,14 @@ def draw2eff(dhe, en, s, si, flavor):
 
     # faco
 
-    l = TLegend(0.12, 0.15, 0.40, 0.27)
+    
+    # choose location of the legend a bit more smartly:
+    if (flavor == "l"):
+        l = TLegend(0.20, 0.75, 0.40, 0.88)    
+    else :
+        l = TLegend(0.40, 0.15, 0.82, 0.27)    
+        
+
     l.SetBorderSize(0)
     l.SetFillStyle(0000)
     l.SetTextSize(0.045)
@@ -117,8 +125,13 @@ def draw1CF(dhcf, en, s, si, flavor):
     if 'l' in flavor:
         efftitle = 'Full/Fast CF_{udsg}'
         msf = 0.3
+        
+    
 
-    cfn = 'CF_jet_pt_'+en+'_'+flavor+'_'+si
+    print " samples content is ",     samples[i][0]
+
+
+    cfn = 'CF_jet_pt_'+en+'_'+flavor+'_'+si # faco
 #    print "About to use it!"
 #    print "dhcf = ", dhcf
 #    print "cfn = ", cfn
@@ -139,15 +152,22 @@ def draw1CF(dhcf, en, s, si, flavor):
     #h.GetYaxis().SetTitleOffset(0.62)
     h.GetYaxis().SetTitleSize(0.055)
     h.GetYaxis().SetTitleFont(42)
-    h.GetYaxis().SetRangeUser(0.8,3)
+    # Set range depending on the flavour
+    if (flavor == "l" ):
+        h.GetYaxis().SetRangeUser(0.5,3)
+    elif (flavor == "c" ):
+        h.GetYaxis().SetRangeUser(0.5,1.5)
+    else :
+        h.GetYaxis().SetRangeUser(0.8,1.2)
     h.Draw('pe1')
     
     # Save the histogram in a root file
     outputFile.cd()
-    h.Write()
+    h.Write('CF_jet_pt_'+en+'_'+flavor+'_'+sn)
 
 
-    l = TLegend(0.12, 0.15, 0.40, 0.27)
+#    l = TLegend(0.12, 0.15, 0.40, 0.27)
+    l = TLegend(0.12, 0.85, 0.40, 0.27)
     l.SetBorderSize(0)
     l.SetFillStyle(0000)
     l.SetTextSize(0.045)
@@ -317,6 +337,8 @@ gStyle.SetErrorX(0.)
 # File names
 samples = []
 samples.append(['output_TT', 'TTJets'])
+samples.append(['output_T1bbbb_mG1000_mLSP900', 'T1bbbb 1000 900'])
+samples.append(['output_T1bbbb_mG1500_mLSP100', 'T1bbbb 1500 100'])
 """
 samples.append(['output_T1bbbb_mg600_', 'T1bbbb 600 100'])
 samples.append(['output_T1bbbb_mg825_', 'T1bbbb 820 200'])
@@ -338,8 +360,7 @@ samples.append(['output_T2tt_', 'T2tt combined'])
 fFl = []
 fFs = []
 for s in samples:
-    fFl.append(TFile(s[0]+'PU25nsFull.root'))
-#    fFl.append(TFile(s[0]+'PU25nsFull.root'))
+    fFl.append(TFile(s[0]+'Full.root'))
     fFs.append(TFile(s[0]+'Fast.root'))
 
 # Get the histogram names in an example ROOT file:
@@ -375,16 +396,19 @@ print "Histnames_fast.size() is ", len(histnames), "and histnames_full.size() is
 # Names of taggers for which we want an efficiency
 effnames = []
 
+"""
 # CSVv1
-#effnames.append('csvl')
-#effnames.append('csvm')
-#effnames.append('csvivft')
+effnames.append('csvl')
+effnames.append('csvm')
+effnames.append('csvt')
+"""
 
+#"""
 # CSVv2
 effnames.append('csvivfl')
 effnames.append('csvivfm')
 effnames.append('csvivft')
-#
+#"""
 
 #effnames.append('taggedJPL')
 #effnames.append('taggedJPM')
@@ -420,16 +444,16 @@ for h in sorted(dh.iterkeys()):
 # Make the efficiency histograms
 dhe = {}
 for h in sorted(dh.iterkeys()):
-    print "list of key in dh is ", dh
     for en in effnames:
         if en in h:
-            print "en is ", en
-            hnn = h
-            print "hnn is ", hnn
-            hnd = h.replace(en, "all")
-            print "hnd is ", hnd 
-            hne = 'eff_'+hnn
-            ratio(hnn, hnd, hne, dh, dhe)
+            if "gen" not in h:# temporary fix 
+                print "en is ", en
+                hnn = h
+                print "hnn is ", hnn
+                hnd = h.replace(en, "all")
+                print "hnd is ", hnd 
+                hne = 'eff_'+hnn
+                ratio(hnn, hnd, hne, dh, dhe)
 
 
 # Make the CF histograms
@@ -462,8 +486,6 @@ for flavor in flavors:
 
 
 # Make tables
-
-
 def mktable(he, effnames, si, s):
 
     sn = replace(s[1], ' ', '_')
@@ -474,6 +496,11 @@ def mktable(he, effnames, si, s):
     cols = '|l|'+ncol*'c|'
 
     header = '''
+\\documentclass[a5paper,10pt]{article}
+\\usepackage[landscape,margin=0.15cm]{geometry}
+\\usepackage{multirow}
+\\begin{document}
+
 \\begin{table}[htbp]
 \\fontsize{5 pt}{0.7 em}
 \selectfont
@@ -492,6 +519,7 @@ def mktable(he, effnames, si, s):
 \end{center}
 \label{default}
 \end{table}%
+\\end{document} 
     '''
 
     f.write(header)
@@ -542,6 +570,7 @@ def mkpayload(he, effnames, si, s):
 \end{center}
 \label{default}
 \end{table}%
+\end{document}   
     '''
 
     f.write(header)
@@ -647,6 +676,48 @@ if (write_table):
 
 # Start plotting
 
+
+bmargin = 0.12
+lmargin = 0.12
+c = TCanvas('c', 'c', 1000, 1000)
+c.Divide(3,2)
+
+
+for i in range(len(samples)):
+    si = str(i)
+    s = samples[i]
+    sn = s[1].replace(' ', '_')
+    for en in effnames:
+        c.cd(1)
+        c.cd(1).SetBottomMargin(bmargin)
+        c.cd(1).SetLeftMargin(bmargin)
+        draw2eff(dhe, en, s, si, 'b')
+        c.cd(2)
+        c.cd(2).SetBottomMargin(bmargin)
+        c.cd(2).SetLeftMargin(bmargin)
+        draw2eff(dhe, en, s, si, 'c')
+        c.cd(3)
+        c.cd(3).SetBottomMargin(bmargin)
+        c.cd(3).SetLeftMargin(bmargin)
+        draw2eff(dhe, en, s, si, 'l')
+        c.cd(4)
+        c.cd(4).SetBottomMargin(bmargin)
+        c.cd(4).SetLeftMargin(bmargin)
+        draw1CF(dhcf, en, s, si, 'b')
+        c.cd(5)
+        c.cd(5).SetBottomMargin(bmargin)
+        c.cd(5).SetLeftMargin(bmargin)        
+        draw1CF(dhcf, en, s, si, 'c')
+        c.cd(6)
+        c.cd(6).SetBottomMargin(bmargin)
+        c.cd(6).SetLeftMargin(bmargin)
+        draw1CF(dhcf, en, s, si, 'l')
+        c.Print('plots/p_'+en+'_'+sn+'_bcl.pdf')#faco
+
+
+
+
+
 bmargin = 0.12
 lmargin = 0.12
 c = TCanvas('c', 'c', 1000, 1000)
@@ -668,11 +739,11 @@ for i in range(len(samples)):
         c.cd(3)
         c.cd(3).SetBottomMargin(bmargin)
         c.cd(3).SetLeftMargin(bmargin)
-        draw1CF(dhcf, en, s, si, 'b')
+#        draw1CF(dhcf, en, s, si, 'b')
         c.cd(4)
         c.cd(4).SetBottomMargin(bmargin)
         c.cd(4).SetLeftMargin(bmargin)        
-        draw1CF(dhcf, en, s, si, 'c')
+#        draw1CF(dhcf, en, s, si, 'c')
         c.Print('plots/p_'+en+'_'+sn+'_bc.pdf')#faco
 
         c.cd(1)
@@ -686,11 +757,11 @@ for i in range(len(samples)):
         c.cd(3)
         c.cd(3).SetBottomMargin(bmargin)
         c.cd(3).SetLeftMargin(bmargin)
-        draw1CF(dhcf, en, s, si, 'l')
+#        draw1CF(dhcf, en, s, si, 'l')
         c.cd(4)
         c.cd(4).SetBottomMargin(bmargin)
         c.cd(4).SetLeftMargin(bmargin)        
-        draw1CF(dhcf, en, s, si, 'l')
+#        draw1CF(dhcf, en, s, si, 'l')
         c.Print('plots/p_'+en+'_'+sn+'_l.pdf')        
 
         c.cd(1)
