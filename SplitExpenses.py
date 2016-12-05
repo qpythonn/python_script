@@ -26,7 +26,7 @@ print "On average each person should have spent " , average
 
 
 # The balance is defined as the amount spent - average
-# If the balance is positive, the person should receive monney
+# If the balance is positive, the person should receive money
 balance_dict = {}
 positive_dict = {}
 negative_dict = {}
@@ -42,7 +42,7 @@ for key in spent_dict:
     elif (balance < 0) :
         negative_dict[key] = abs(balance)
     else :
-        print key, "is already fair and do not have to send or receive monney !!!"
+        print key, "is already fair and do not have to send or receive money !!!"
 
 
 # sort the dictionary first
@@ -111,10 +111,10 @@ while len(positive_dict) != 0 and len(negative_dict) != 0 :
 
     transactions_list.append(first_key_neg + " gives  " + str(minimum) + " to " + first_key_pos)
 
-    print "still owing monney ... "
+    print "still owing money ... "
     print negative_dict
     
-    print "should still receive monney ... " 
+    print "should still receive money ... " 
     print positive_dict
 
 
